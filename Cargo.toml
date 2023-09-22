@@ -1,5 +1,5 @@
 [package]
-name = "webserver"
+name = "rudder"
 version = "0.1.0"
 edition = "2021"
 
