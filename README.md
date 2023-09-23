@@ -48,9 +48,26 @@ fn main() {
 Rudder follows MVC (Model-View-Controller) software design pattern:
 
 ```rust
-// EXAMPLE MODEL
+// MODEL EXAMPLE
 struct User {
     name:String,
     age:u8,
+}
+```
+
+```html
+<!-- VIEW EXAMPLE -->
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <h1>User data:</h1> {{user.name}} {{user.age}}
+    </body>
+</html>
+```
+
+```rust
+// CONTROLLER EXAMPLE
+fn controller(request:rudder::Request) -> rudder::Response {
+    ...
 }
 ```
