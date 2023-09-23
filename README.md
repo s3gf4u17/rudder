@@ -1,6 +1,6 @@
 ## rudder
 
-Rudder is a web framework built from scratch in Rust. At the moment project is in it's early design and prototyping stage. To run it on your own server you first need to clone the repository:
+Rudder is a web framework built from scratch in Rust. Project inspired by the design of Django. At the moment project is in it's early design and prototyping stage. To run it on your own server you first need to clone the repository:
 
 ```
 git clone https://github.com/s3gf4u17/rudder
