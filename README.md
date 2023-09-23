@@ -13,30 +13,33 @@ git clone https://github.com/s3gf4u17/rudder
 Then you can develop your service by configuring `main.rs` file to your needs. At the moment there is a working example set up, showing how to use Rudder features:
 
 ```rust
-use rudder::{Request, Response, Router};
+use rudder::{Request, Response, Router}; // import Rudder functionality
 
+// create a data struct for generating json response
 #[derive(Debug)]
 struct User {
     name: String,
     age: u8,
 }
 
-fn htmlsite(request: Request) -> Response {
-    Response::html(String::from("hello rudder!"))
+// response handler for '127.0.0.1:7878/html'
+fn htmlSite(request: Request) -> Response {
+    Response::html(String::from("hello rudder!")) // generate response from string
 }
 
-fn jsonsite(request: Request) -> Response {
+// response handler for '127.0.0.1:7878/json'
+fn jsonSite(request: Request) -> Response {
     Response::json(User {
         name: String::from("alisson"),
         age: 17,
-    })
+    }) // generate response from user object
 }
 
 fn main() {
-    let mut router = Router::new("127.0.0.1", "7878");
-    router.handle_route("/html", htmlsite);
-    router.handle_route("/json", jsonsite);
-    router.listen();
+    let mut router = Router::new("127.0.0.1", "7878"); // initialize router (host,port)
+    router.handle_route("/html", htmlSite); // define route handler function
+    router.handle_route("/json", jsonSite); // define route handler function
+    router.listen(); // run router
 }
 ```
 
