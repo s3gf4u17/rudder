@@ -1,22 +1,25 @@
-use rudder::*;
+use rudder::{Request, Response, Router};
 
-const template: &str = "<h1>test template for user: {{name}}</h1>";
-
+#[derive(Debug)]
 struct User {
     name: String,
+    age: u8,
 }
 
-fn controller() -> rudder::Response {
-    let response = rudder::Response::HTMLstring(String::from(template));
-    let user = User {
-        name: String::from("Alisson"),
-    };
-    let response = rudder::Response::HTMLdynamic::<User>(String::from(template), user);
-    response
+fn htmlsite(request: Request) -> Response {
+    Response::html(String::from("hello rudder!"))
+}
+
+fn jsonsite(request: Request) -> Response {
+    Response::json(User {
+        name: String::from("alisson"),
+        age: 17,
+    })
 }
 
 fn main() {
-    let mut app = rudder::App::new("127.0.0.1", "7878");
-    app.handle_route("/", controller);
-    app.listen();
+    let mut router = Router::new("127.0.0.1", "7878");
+    router.handle_route("/html", htmlsite);
+    router.handle_route("/json", jsonsite);
+    router.listen();
 }
