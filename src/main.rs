@@ -1,5 +1,4 @@
 use rudder::*;
-use std::fs;
 
 const template: &str = "<h1>test template for user: {{name}}</h1>";
 
