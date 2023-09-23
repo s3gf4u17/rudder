@@ -1,77 +1,45 @@
-## rudder
+# Rudder
 
 Rudder is a high-performance web framework for building web applications in Rust. It provides a set of tools and features to help you create web applications with ease. Rudder supports creating RESTful APIs as well as full stack web applications. At the moment project is in it's early design and prototyping stage.
 
 ### Getting Started
 
-To start using Rudder, first you need to clone this repository
+To start using Rudder, first you need to clone this repository:
 
 ```
 git clone https://github.com/s3gf4u17/rudder
 ```
 
-And then run or edit code in `main.rs`:
+Then you can develop your service by configuring `main.rs` file to your needs. At the moment there is a working example set up, showing how to use Rudder features:
 
 ```rust
-use rudder::*;
+use rudder::{Request, Response, Router};
 
-fn main() {
-    let app = rudder::App::new("127.0.0.1","7878");
-    app.run();
-}
-```
-
-### Examples
-
-Simple routing:
-
-```rust
-use rudder::*;
-use std::fs;
-
-fn index() -> String {
-    fs::read_to_string("templates/index.html").unwrap()
-}
-
-fn test() -> String {
-    fs::read_to_string("templates/test.html").unwrap()
-}
-
-fn main() {
-    let mut app = rudder::App::new("127.0.0.1","7878");
-
-    app.add_path("/",index);
-    app.add_path("/test",test);
-
-    app.run();
-}
-```
-
-### Architecture
-
-Rudder follows MVC (Model-View-Controller) software design pattern:
-
-```rust
-// MODEL EXAMPLE
+#[derive(Debug)]
 struct User {
-    name:String,
-    age:u8,
+    name: String,
+    age: u8,
+}
+
+fn htmlsite(request: Request) -> Response {
+    Response::html(String::from("hello rudder!"))
+}
+
+fn jsonsite(request: Request) -> Response {
+    Response::json(User {
+        name: String::from("alisson"),
+        age: 17,
+    })
+}
+
+fn main() {
+    let mut router = Router::new("127.0.0.1", "7878");
+    router.handle_route("/html", htmlsite);
+    router.handle_route("/json", jsonsite);
+    router.listen();
 }
 ```
 
-```html
-<!-- VIEW EXAMPLE -->
-<!DOCTYPE html>
-<html lang="en">
-    <body>
-        <h1>User data:</h1> {{user.name}} {{user.age}}
-    </body>
-</html>
-```
+### Notes
 
-```rust
-// CONTROLLER EXAMPLE
-fn controller(request:rudder::Request) -> rudder::Response {
-    ...
-}
-```
+At the moment using structs as arguments to generate `Response::json` requires them to have default Rust Debug trait derived.
