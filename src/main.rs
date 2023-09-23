@@ -1,19 +1,15 @@
 use rudder::*;
 use std::fs;
 
-fn index() -> String {
-    fs::read_to_string("templates/index.html").unwrap()
-}
+const template : &str = "<h1>test template</h1>";
 
-fn test() -> String {
-    fs::read_to_string("templates/test.html").unwrap()
+fn controller() -> rudder::Response {
+    let response = rudder::Response::HTMLstring(String::from(template));
+    response
 }
 
 fn main() {
     let mut app = rudder::App::new("127.0.0.1","7878");
-
-    app.add_path("/",index);
-    app.add_path("/test",test);
-
-    app.run();
+    app.handle_route("/",controller);
+    app.listen();
 }
