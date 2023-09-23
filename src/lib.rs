@@ -1,30 +1,31 @@
 use std::collections::HashMap;
-use std::fs;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::net::TcpListener;
-use std::net::TcpStream;
 
-pub struct App {
-    host: String,
-    port: String,
-    router: HashMap<String, fn() -> Response>,
-}
+pub struct Request {}
 
 pub struct Response {
     status: String,
+    datatype: String,
     length: usize,
     contents: String,
 }
 
-impl App {
-    pub fn new(host: &str, port: &str) -> App {
+pub struct Router {
+    host: String,
+    port: String,
+    router: HashMap<String, fn(Request) -> Response>,
+}
+
+impl Router {
+    pub fn new(host: &str, port: &str) -> Router {
         let host = host.to_string();
         let port = port.to_string();
-        let router: HashMap<String, fn() -> Response> = HashMap::new();
-        App { host, port, router }
+        let router: HashMap<String, fn(Request) -> Response> = HashMap::new();
+        Router { host, port, router }
     }
-    pub fn handle_route(&mut self, path: &str, f: fn() -> Response) {
+    pub fn handle_route(&mut self, path: &str, f: fn(Request) -> Response) {
         self.router.insert(String::from(path), f);
     }
     pub fn listen(&self) {
@@ -41,10 +42,10 @@ impl App {
 
             let path: Vec<_> = http_request[0].split(" ").collect();
             let handler = self.router.get(path[1]).unwrap();
-            let response = handler();
+            let response = handler(Request {});
             let responsebytes = format!(
-                "{}\r\nContent-Length: {}\r\n\r\n{}",
-                response.status, response.length, response.contents
+                "{}\r\nContent-Type: {}\r\nContent-Length: {}\r\n\r\n{}",
+                response.status, response.datatype, response.length, response.contents
             );
             stream.write_all(responsebytes.as_bytes()).unwrap();
         }
@@ -52,20 +53,71 @@ impl App {
 }
 
 impl Response {
-    pub fn HTMLstring(contents: String) -> Response {
+    pub fn html(contents: String) -> Response {
         let status = String::from("HTTP/1.1 200 Ok");
         let length = contents.len();
+        let datatype = String::from("text/html");
         Response {
             status,
+            datatype,
             length,
             contents,
         }
     }
-    pub fn HTMLdynamic<T>(mut contents: String, context: T) -> Response {
+    pub fn json<T: std::fmt::Debug>(contents: T) -> Response {
+        let typ = std::any::type_name::<T>()
+            .replace("rudder::", "")
+            .replace("alloc::vec::Vec<", "")
+            .replace(">", "");
+        println!("{}", typ);
+        let oldcontents = format!("{:#?}", contents).replace(&typ, "");
+        let mut contents = String::from(" ");
+        for c in oldcontents.chars() {
+            match c {
+                '[' => {
+                    contents.push_str("[");
+                }
+                '{' => {
+                    if contents.chars().last().unwrap() == '"' {
+                        contents.pop();
+                    }
+                    contents.push_str("{");
+                    contents.push_str("\"");
+                }
+                '}' => {
+                    contents.pop();
+                    contents.pop();
+                    contents.push_str("}");
+                }
+                ']' => {
+                    contents.pop();
+                    contents.pop();
+                    contents.push_str("]");
+                }
+                '"' => {
+                    contents.push_str("\"");
+                }
+                ',' => {
+                    contents.push_str(",");
+                    contents.push_str("\"");
+                }
+                ':' => {
+                    contents.push_str("\"");
+                    contents.push_str(":");
+                }
+                ' ' => {}
+                '\n' => {}
+                _ => {
+                    contents.push_str(&String::from(c));
+                }
+            }
+        }
         let status = String::from("HTTP/1.1 200 Ok");
         let length = contents.len();
+        let datatype = String::from("application/json");
         Response {
             status,
+            datatype,
             length,
             contents,
         }
