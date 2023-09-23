@@ -42,3 +42,15 @@ fn main() {
     app.run();
 }
 ```
+
+### Architecture
+
+Rudder follows MVC (Model-View-Controller) software design pattern:
+
+```rust
+// EXAMPLE MODEL
+struct User {
+    name:String,
+    age:u8,
+}
+```
